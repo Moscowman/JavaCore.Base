@@ -11,13 +11,15 @@ public class Main {
         Random random = new Random();
         int numOfWord = random.nextInt(words.length);
         String word = words[numOfWord];
+        System.out.println("Ваша задача - угадать слово. После каждой попытки я покажу вам буквы, которые вы угадали.");
         while (true) {
-            System.out.println("Введите слово");
+            System.out.println("Введите маленькими буквами слово на английском языке");
             String inString = scanner.nextLine();
             if (word.matches(inString)) {
                 System.out.println("Слово угадано!");
                 break;
             }
+            System.out.println("Вы угадали следующие буквы (#) - не угаданная буква");
             int lenToCompare = Math.min(word.length(), inString.length());
             for (int i = 0; i < lenToCompare; i++) {
                 if (word.charAt(i) == inString.charAt(i)) {
