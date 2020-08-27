@@ -120,17 +120,27 @@ public class Main {
     private static void task7() {
         //Задание 7
         Random random = new Random();
-        final int array7size = 20;
-        int[] array7 = new int[array7size];
-        for (int i = 0; i < array7size; i++) {
-            array7[i] = random.nextInt(10);
+        for (int i = 0; i < 100000; i++) {
+            final int array7size = random.nextInt(1000) + 10;
+            System.out.println(i + ":" + array7size);
+            int[] array7 = new int[array7size];
+            for (int j = 0; j < array7size; j++) {
+                array7[j] = random.nextInt(10);
+            }
+            int shift = random.nextInt(array7size * 2) - array7size;
+            System.out.printf("Задание 7. Исходный массив:\n%s\n", Arrays.toString(array7));
+            int[] shiftedArray7 = shiftArray(array7, shift);
+            System.out.printf("Задание 7. Сдвинутый на %d массив:\n%s\n", shift, Arrays.toString(shiftedArray7));
+            int[] shiftedArray8 = shiftArray2(array7, -shift);
+            System.out.printf("Задание 7. Сдвинутый на %d массив:\n%s\n", shift, Arrays.toString(shiftedArray8));
+            if (!Arrays.equals(shiftedArray7, shiftedArray8)) {
+                System.out.println("!!!!!!" + i);
+                break;
+            }
         }
-        System.out.printf("Задание 7. Исходный массив:\n%s\n", Arrays.toString(array7));
-        int shift = random.nextInt(20) - 10;
-        int[] shiftedArray7 = shiftArray(array7, shift);
-        System.out.printf("Задание 7. Сдвинутый массив на %d массив:\n%s\n", shift, Arrays.toString(shiftedArray7));
     }
-    private static int[] shiftArray(int[] array, int n) {
+    private static int[] shiftArray(int[] _array, int n) {
+        int[] array = Arrays.copyOf(_array, _array.length);
         if (n == 0 || n % array.length == 0) return array;
         n = (Math.abs(n) % array.length) * (int)Math.signum(n);
         int count = 0;
@@ -146,6 +156,20 @@ public class Main {
                 count++;
             } while (currentPosition != startPosition);
             startPosition++;
+        }
+        return array;
+    }
+
+    private static int[] shiftArray2(int[]_array, int n) {
+        int[] array = Arrays.copyOf(_array, _array.length);
+        int k = n % array.length + array.length;
+        for (int i = 0; i < k; i++) {
+            int temp;
+            for (int j = 0; j < array.length - 1; j++) {
+                temp = array[j];
+                array[j] = array[j + 1];
+                array[j + 1] = temp;
+            }
         }
         return array;
     }
