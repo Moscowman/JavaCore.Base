@@ -5,8 +5,8 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class XOGame {
-    static final int SIZE = 3;
-//    static final int DOT_TO_WIN = 3;
+    static final int SIZE = 5;
+    static final int DOT_TO_WIN = 4;
 
     static final char DOT_X = 'X';
     static final char DOT_O = 'O';
@@ -114,32 +114,41 @@ public class XOGame {
 
     public static boolean checkWin(char c) {
         for (int i = 0; i < SIZE; i++) {
-            boolean horizontalWin = true;
-            boolean verticalWin = true;
+            int horizontalWin = 0;
+            int verticalWin = 0;
             for (int j = 0; j < SIZE; j++) {
                 if (map[i][j] != c) {
-                    horizontalWin = false;
+                    horizontalWin = 0;
+                } else {
+                    horizontalWin++;
                 }
+
                 if (map[j][i] != c) {
-                    verticalWin = false;
+                    verticalWin = 0;
+                } else {
+                    verticalWin++;
                 }
-            }
-            if (horizontalWin || verticalWin) {
-                return true;
-            }
-        }
-        boolean diagonal1 = true;
-        boolean diagonal2 = true;
-        for (int i = 0; i < SIZE; i++) {
-            if (map[i][i] != c) {
-                diagonal1 = false;
-            }
-            if (map[i][SIZE - i - 1] != c) {
-                diagonal2 = false;
+                if (horizontalWin >= DOT_TO_WIN || verticalWin >= DOT_TO_WIN)
+                    return true;
             }
         }
-        if (diagonal1 || diagonal2) {
-            return true;
+        for (int i = 0; i <= SIZE - DOT_TO_WIN; i++) {
+            for (int j = 0; j <= SIZE - DOT_TO_WIN; j++) {
+                boolean diagonal1 = true;
+                boolean diagonal2 = true;
+                for (int k = 0; k < DOT_TO_WIN; k++) {
+                    if (map[i + k][j + k] != c) {
+                        diagonal1 = false;
+                    }
+                    if (map[i + k][SIZE - i - k - 1] != c) {
+                        diagonal2 = false;
+                    }
+                }
+                if (diagonal1 || diagonal2) {
+                    return true;
+                }
+
+            }
         }
 
         return false;
