@@ -7,6 +7,7 @@ import java.util.Scanner;
 public class XOGame {
     static final int SIZE = 5;
     static final int DOT_TO_WIN = 4;
+    static final int AI_CHECK_DEPTH = 4;
 
     static final char DOT_X = 'X';
     static final char DOT_O = 'O';
@@ -24,7 +25,7 @@ public class XOGame {
         while (true) {
             humanTurn();
             printMap();
-            if (checkWin(DOT_X)) {
+            if (checkWin(map, DOT_X)) {
                 System.out.println("Вы победили! Поздравляем!");
                 break;
             }
@@ -35,7 +36,7 @@ public class XOGame {
 
             aiTurn();
             printMap();
-            if (checkWin(DOT_O)) {
+            if (checkWin(map, DOT_O)) {
                 System.out.println("Компьютер победил.");
                 break;
             }
@@ -93,10 +94,13 @@ public class XOGame {
         int x;
         int y;
 
-        do {
-            x = random.nextInt(SIZE);
-            y = random.nextInt(SIZE);
-        } while (!isCellValid(y, x));
+        int[] move = checkForBestMove(DOT_X, DOT_O);
+        x = move[1];
+        y = move[0];
+        if (!isCellValid(y, x)) {
+            System.out.println("Внутренняя ошибка искусственного интеллекта!!!");
+        }
+        ;
 
         map[y][x] = DOT_O;
     }
@@ -112,18 +116,18 @@ public class XOGame {
         return true;
     }
 
-    public static boolean checkWin(char c) {
+    public static boolean checkWin(char[][] mapToCheck, char c) {
         for (int i = 0; i < SIZE; i++) {
             int horizontalWin = 0;
             int verticalWin = 0;
             for (int j = 0; j < SIZE; j++) {
-                if (map[i][j] != c) {
+                if (mapToCheck[i][j] != c) {
                     horizontalWin = 0;
                 } else {
                     horizontalWin++;
                 }
 
-                if (map[j][i] != c) {
+                if (mapToCheck[j][i] != c) {
                     verticalWin = 0;
                 } else {
                     verticalWin++;
@@ -134,24 +138,88 @@ public class XOGame {
         }
         for (int i = 0; i <= SIZE - DOT_TO_WIN; i++) {
             for (int j = 0; j <= SIZE - DOT_TO_WIN; j++) {
-                boolean diagonal1 = true;
-                boolean diagonal2 = true;
+                int diagonal1 = 0;
+                int diagonal2 = 0;
                 for (int k = 0; k < DOT_TO_WIN; k++) {
-                    if (map[i + k][j + k] != c) {
-                        diagonal1 = false;
+                    if (mapToCheck[i + k][j + k] != c) {
+                        diagonal1 = 0;
+                    } else {
+                        diagonal1++;
                     }
-                    if (map[i + k][SIZE - i - k - 1] != c) {
-                        diagonal2 = false;
+                    if (mapToCheck[i + k][SIZE - j - k - 1] != c) {
+                        diagonal2 = 0;
+                    } else {
+                        diagonal2++;
                     }
                 }
-                if (diagonal1 || diagonal2) {
+                if (diagonal1 >= DOT_TO_WIN || diagonal2 >= DOT_TO_WIN) {
                     return true;
                 }
 
             }
         }
-
         return false;
+    }
+
+    public static int[] checkForBestMove(char enemy, char my) {
+        double bestMoveWeight = -10000.0;
+        int bestMoveX = -1;
+        int bestMoveY = -1;
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (map[i][j] != DOT_EMPTY) {
+                    continue;
+                }
+                char[][] newMap = new char[SIZE][];
+                for (int k = 0; k < SIZE; k++) {
+                    newMap[k] = Arrays.copyOf(map[k], SIZE);
+                }
+                newMap[i][j] = DOT_O;
+                double weight = checkForBestMoveRecursive(newMap, enemy, my, false, 0);
+                if (weight > bestMoveWeight) {
+                    bestMoveWeight = weight;
+                    bestMoveX = i;
+                    bestMoveY = j;
+                }
+            }
+        }
+        return new int[]{bestMoveX, bestMoveY};
+    }
+
+    public static double checkForBestMoveRecursive(char[][] mapToCheck, char enemy, char my, boolean isMyMove, int depth) {
+        if (depth >= AI_CHECK_DEPTH) {
+            return 0.5;
+        }
+
+        double win = 0.0;
+        boolean enemyWin = checkWin(mapToCheck, enemy);
+        if (enemyWin) {
+            win = -100;
+        }
+        boolean myWin = checkWin(mapToCheck, my);
+        if (myWin) {
+            win = 1.0;
+        }
+        if (myWin || enemyWin) {
+            return win;
+        }
+
+        double sumOfWeights = 0.0;
+        double movesChecked = 0.0;
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                if (mapToCheck[i][j] == DOT_EMPTY) {
+                    char[][] newMap = new char[SIZE][];
+                    for (int k = 0; k < SIZE; k++) {
+                        newMap[k] = Arrays.copyOf(mapToCheck[k], SIZE);
+                    }
+                    newMap[i][j] = isMyMove ? my : enemy;
+                    sumOfWeights += checkForBestMoveRecursive(newMap, enemy, my, !isMyMove, depth + 1);
+                    movesChecked++;
+                }
+            }
+        }
+        return sumOfWeights / movesChecked;
     }
 
 }
