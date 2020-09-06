@@ -9,10 +9,10 @@ public class Lesson5 {
         persArray[3] = new Employer("Evdokimov Alex", "Guardian", "evdalex@mailbox.com", "892636933", 20000, 45);
         persArray[4] = new Employer("Kopytkina Elena", "Cleaner", "popytelena@mailbox.com", "891642342", 15000, 60);
 
-        for (int i = 0; i < persArray.length; i++)
+        for (Employer person : persArray)
         {
-            if (persArray[i].getAge() > 40) {
-                persArray[i].info();
+            if (person.getAge() > 40) {
+                person.info();
             }
         }
     }
