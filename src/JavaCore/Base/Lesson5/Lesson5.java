@@ -14,6 +14,7 @@ public class Lesson5 {
             if (person.getAge() > 40) {
                 person.info();
             }
+
         }
     }
 }
