@@ -3,7 +3,6 @@ package JavaCore.Base.Lesson8;
 import javax.swing.*;
 import java.awt.*;
 
-
 public class GameWindow extends JFrame {
     static final int WINDOW_X = 500;
     static final int WINDOW_Y = 500;

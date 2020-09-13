@@ -90,15 +90,26 @@ public class BattleField extends JPanel {
     }
 
     private void drawO(Graphics g, int cellX, int cellY) {
-//        g.setFont(new Font("Arial", Font.BOLD, 30));
-//        g.drawString("O", cellX * cellWidth + (cellWidth / 2), cellY * cellHeight + (cellHeight / 2));
+        ((Graphics2D) g).setStroke(new BasicStroke(5));
+        if (Logic.winLine[cellY][cellX]) {
+            g.setColor(Color.GREEN);
+        } else {
+            g.setColor(Color.RED);
+        }
+        g.drawOval(cellX * cellWidth, cellY * cellHeight, cellWidth, cellHeight);
     }
 
     private void drawX(Graphics g, int cellX, int cellY) {
         ((Graphics2D) g).setStroke(new BasicStroke(5));
-        g.setColor(Color.BLUE);
+        if (Logic.winLine[cellY][cellX]) {
+            g.setColor(Color.GREEN);
+        } else {
+            g.setColor(Color.BLUE);
+        }
         g.drawLine(cellX * cellWidth, cellY * cellHeight,
                 (cellX + 1) * cellWidth, (cellY + 1) * cellHeight);
+        g.drawLine((cellX +1) * cellWidth, cellY * cellHeight,
+                cellX * cellWidth, (cellY + 1) * cellHeight);
 
     }
 }

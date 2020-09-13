@@ -1,7 +1,7 @@
 package JavaCore.Base.Lesson8;
 
+import javax.swing.*;
 import java.util.Random;
-import java.util.Scanner;
 
 public class Logic {
     static int SIZE = 5;
@@ -13,6 +13,8 @@ public class Logic {
 
     static char[][] map;
 
+    static boolean[][] winLine;
+
     static Random random = new Random();
 
     static boolean isFinishedGame;
@@ -20,19 +22,24 @@ public class Logic {
     private static void go() {
         isFinishedGame = true;
         printMap();
-        if (checkWinLines(DOT_X, DOTS_TO_WIN)) {
+        if (checkWinLines(DOT_X, DOTS_TO_WIN, true)) {
+            printMap();
             System.out.println("Вы победили! Поздравляем!");
+            JOptionPane.showMessageDialog(null, "Вы победили! Поздравляем!");
             return;
         }
         if (isFull()) {
             System.out.println("Ничья");
+            JOptionPane.showMessageDialog(null, "Ничья");
             return;
         }
 
         aiTurn();
         printMap();
-        if (checkWinLines(DOT_O, DOTS_TO_WIN)) {
+        if (checkWinLines(DOT_O, DOTS_TO_WIN, true)) {
+            printMap();
             System.out.println("Компьютер победил.");
+            JOptionPane.showMessageDialog(null, "Компьютер победил.");
             return;
         }
         if (isFull()) {
@@ -45,6 +52,7 @@ public class Logic {
 
     public static void initMap() {
         map = new char[SIZE][SIZE];
+        winLine = new boolean[SIZE][SIZE];
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
                 map[i][j] = DOT_EMPTY;
@@ -97,7 +105,7 @@ public class Logic {
             for (int j = 0; j < SIZE; j++) {
                 if (isCellValid(i, j)) {
                     map[i][j] = DOT_O;
-                    if (checkWinLines(DOT_O, DOTS_TO_WIN)) {
+                    if (checkWinLines(DOT_O, DOTS_TO_WIN, false)) {
                         return;
                     }
                     map[i][j] = DOT_EMPTY;
@@ -109,7 +117,7 @@ public class Logic {
             for (int j = 0; j < SIZE; j++) {
                 if (isCellValid(i, j)) {
                     map[i][j] = DOT_X;
-                    if (checkWinLines(DOT_X, DOTS_TO_WIN)) {
+                    if (checkWinLines(DOT_X, DOTS_TO_WIN, false)) {
                         map[i][j] = DOT_O;
                         return;
                     }
@@ -123,7 +131,7 @@ public class Logic {
             for (int j = 0; j < SIZE; j++) {
                 if (isCellValid(i, j)) {
                     map[i][j] = DOT_X;
-                    if (checkWinLines(DOT_X, DOTS_TO_WIN - 1) &&
+                    if (checkWinLines(DOT_X, DOTS_TO_WIN - 1, false) &&
                             Math.random() < 0.5) { //  фактор случайности, чтобы сбивал не все время первый попавшийся путь.
                         map[i][j] = DOT_O;
                         return;
@@ -155,7 +163,7 @@ public class Logic {
     }
 
 
-    static boolean checkLine(int cy, int cx, int vy, int vx, char dot, int dotsToWin) {
+    static boolean checkLine(int cy, int cx, int vy, int vx, char dot, int dotsToWin, boolean markWinLine) {
         if (cx + vx * (dotsToWin - 1) > SIZE - 1 || cy + vy * (dotsToWin - 1) > SIZE - 1 ||
                 cy + vy * (dotsToWin - 1) < 0) {
             return false;
@@ -166,16 +174,23 @@ public class Logic {
                 return false;
             }
         }
+        if (markWinLine) {
+            for (int i = 0; i < dotsToWin; i++) {
+                int x = cx + i * vx;
+                int y = cy + i * vy;
+                winLine[y][x] = true;
+            }
+        }
         return true;
     }
 
-    static boolean checkWinLines(char dot, int dotsToWin) {
+    static boolean checkWinLines(char dot, int dotsToWin, boolean markWinLine) {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                if (checkLine(i, j, 0, 1, dot, dotsToWin) ||
-                        checkLine(i, j, 1, 0, dot, dotsToWin) ||
-                        checkLine(i, j, 1, 1, dot, dotsToWin) ||
-                        checkLine(i, j, -1, 1, dot, dotsToWin)) {
+                if (checkLine(i, j, 0, 1, dot, dotsToWin, markWinLine) ||
+                        checkLine(i, j, 1, 0, dot, dotsToWin, markWinLine) ||
+                        checkLine(i, j, 1, 1, dot, dotsToWin, markWinLine) ||
+                        checkLine(i, j, -1, 1, dot, dotsToWin, markWinLine)) {
                     return true;
                 }
             }
